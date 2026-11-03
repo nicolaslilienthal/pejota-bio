@@ -74,6 +74,53 @@
   @keyframes sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.6deg); } }
   @keyframes frond { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(3deg); } }
 
+  /* ---------- Aviões com faixa ---------- */
+  .flight { position: absolute; left: 0; will-change: transform; visibility: hidden; }
+  .flight.on { visibility: visible; }
+  .ride {
+    display: flex; align-items: center; scale: var(--s, 1); opacity: var(--o, 1);
+    animation: ride 3.2s ease-in-out infinite;
+  }
+  .flight.right .ride { flex-direction: row-reverse; }
+  .flight.right .plane { transform: scaleX(-1); }
+  @keyframes ride { 0%, 100% { transform: translateY(0) rotate(-.6deg); } 50% { transform: translateY(-6px) rotate(.8deg); } }
+  .plane { flex: none; width: 64px; height: 26px; overflow: visible; filter: drop-shadow(0 3px 4px rgba(70, 20, 80, .35)); }
+  .plane .prop { transform-box: fill-box; transform-origin: center; animation: prop .12s linear infinite alternate; }
+  @keyframes prop { from { transform: scaleY(1); } to { transform: scaleY(.2); } }
+  .rope { flex: none; width: 30px; height: 12px; overflow: visible; }
+  .banner {
+    position: relative; overflow: hidden; flex: none;
+    height: 28px; padding: 0 14px 0 16px; display: flex; align-items: center;
+    font-family: 'Bungee', cursive; font-size: 12.5px; letter-spacing: .03em; white-space: nowrap;
+    color: #fff; text-shadow: 0 1px 0 rgba(70, 10, 70, .55);
+    border: 1.5px solid rgba(255, 255, 255, .75); border-radius: 3px;
+    box-shadow: 0 6px 14px -6px rgba(70, 20, 80, .55);
+    transform-origin: left center;
+    animation: flutter 1.6s ease-in-out infinite;
+  }
+  .flight.right .banner { transform-origin: right center; padding: 0 16px 0 14px; }
+  .banner::before {
+    content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; width: 4px;
+    background: #3a1745; border-radius: 2px;
+  }
+  .flight.right .banner::before { left: auto; right: 0; }
+  .banner::after {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .09) 0 14px, rgba(60, 0, 60, .05) 14px 28px);
+    background-size: 56px 100%;
+    animation: ripple 1.2s linear infinite;
+  }
+  @keyframes flutter { 0%, 100% { transform: skewY(0) scaleY(1); } 33% { transform: skewY(1.4deg) scaleY(.96); } 66% { transform: skewY(-1deg) scaleY(1.02); } }
+  @keyframes ripple { to { background-position: 56px 0; } }
+  .banner.b1 { background: linear-gradient(90deg, #ff3fa4, #ff6f8e 55%, #ffb36b); }
+  .banner.b2 { background: linear-gradient(90deg, #5b2a86, #8a5cff 55%, #ff3fa4); }
+  .banner.b3 { background: linear-gradient(90deg, #12a8c4, #2ff3e0); color: #3a1745; text-shadow: 0 1px 0 rgba(255, 255, 255, .45); }
+  @media (min-width: 700px) {
+    .plane { width: 80px; height: 32px; }
+    .rope { width: 40px; }
+    .banner { height: 32px; font-size: 14px; padding: 0 18px 0 20px; }
+  }
+
   .bird { position: absolute; width: 22px; height: 10px; animation: fly linear infinite; }
   .bird svg { width: 100%; height: 100%; animation: flap .45s ease-in-out infinite alternate; transform-origin: center; }
   @keyframes fly { from { transform: translate(-10vw, 0); } 50% { transform: translate(50vw, -4vh); } to { transform: translate(115vw, 2vh); } }
@@ -262,6 +309,7 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .reveal, .links li { opacity: 1; transform: none; }
+    #planes { display: none; }
   }
 </style>
 </head>
@@ -270,6 +318,7 @@
     <div class="sky"></div>
     <div class="sun"></div>
     <div class="clouds" id="clouds"></div>
+    <div id="planes"></div>
     <div id="birds"></div>
     <svg id="palms" preserveAspectRatio="none"></svg>
     <div id="sparks"></div>
@@ -430,6 +479,49 @@
     b.firstChild.style.animationDelay = `${rand(-0.4, 0)}s`;
     birds.appendChild(b);
   }
+  // ---------- Aviões puxando faixa ----------
+  const planeSvg = `<svg class="plane" viewBox="0 0 80 32">
+    <path d="M24 15h22l-4 8h-10z" fill="#7a3f86"/>
+    <path d="M8 15c0-3.5 4-5 10-5l42 1.5L70 3h6l-4 10 2 2-8 2-48 3c-6 0-10-1.5-10-5z" fill="#fff4ea"/>
+    <path d="M14 15.4 66 14v2.2L14 18z" fill="#ff3fa4"/>
+    <path d="M70 3h6l-1.6 4h-6z" fill="#ff3fa4"/>
+    <path d="M62 13.2h14l-2 2.4H64z" fill="#d9c2d8"/>
+    <path d="M17 11.2 28 10.6l2.4 3.6-12.4.6z" fill="#2ff3e0"/>
+    <path d="M30.5 20.5 31.5 25" stroke="#3a1745" stroke-width="1.2"/>
+    <circle cx="31.6" cy="26" r="1.8" fill="#3a1745"/>
+    <circle cx="7.4" cy="15" r="2.2" fill="#3a1745"/>
+    <ellipse class="prop" cx="6" cy="15" rx="1.1" ry="9" fill="rgba(58,23,69,.55)"/>
+  </svg>`;
+  const ropeSvg = '<svg class="rope" viewBox="0 0 30 12" preserveAspectRatio="none"><path d="M0 5Q15 10 30 5" fill="none" stroke="rgba(58,23,69,.75)" stroke-width="1"/></svg>';
+  // [frase, cor da faixa, altura na tela, escala, opacidade, sentido, atraso inicial em s]
+  const flights = [
+    ['Ah te manca né meu!', 'b1', 11, 0.9, 1, 'left', 0.8],
+    ['Eai seus aliguinigenas estratosféricos', 'b2', 57, 1, 1, 'right', 7],
+    ['Quem não seguir é chinelão...', 'b3', 80, 0.85, 0.92, 'left', 13]
+  ];
+  if (!reduce) {
+    const planes = document.getElementById('planes');
+    for (const [text, color, top, s, o, dir, delay] of flights) {
+      const f = document.createElement('div');
+      f.className = `flight ${dir}`;
+      f.style.top = `${top}%`;
+      f.innerHTML = `<div class="ride" style="--s:${s};--o:${o};animation-delay:${rand(-3, 0)}s">${planeSvg}${ropeSvg}<div class="banner ${color}"></div></div>`;
+      f.querySelector('.banner').textContent = text;
+      planes.appendChild(f);
+      const fly = () => {
+        // velocidade constante: leitura confortável no celular, um pouco mais rápido em telas largas
+        const W = innerWidth, w = f.offsetWidth + 30;
+        const speed = 48 + W * 0.014;
+        const [from, to] = dir === 'left' ? [W + 30, -w] : [-w, W + 30];
+        f.classList.add('on');
+        f.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }],
+          { duration: (W + w + 30) / speed * 1000, easing: 'linear', fill: 'both' })
+          .onfinish = () => { f.classList.remove('on'); setTimeout(fly, rand(4, 9) * 1000); };
+      };
+      setTimeout(fly, delay * 1000);
+    }
+  }
+
   const sparks = document.getElementById('sparks');
   for (let i = 0; i < 26; i++) {
     const s = document.createElement('div');
