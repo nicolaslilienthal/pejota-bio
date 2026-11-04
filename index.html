@@ -150,12 +150,17 @@
     display: flex; flex-direction: column; align-items: center; gap: 22px;
   }
 
-  .hero { perspective: 900px; width: min(330px, 82vw); animation: float 5s ease-in-out infinite; }
+  .hero {
+    perspective: 900px; width: min(330px, 82vw); animation: float 5s ease-in-out infinite;
+    /* sombra no wrapper: o clip-path da moldura cortaria um box-shadow */
+    filter: drop-shadow(0 18px 24px rgba(90, 20, 90, .55)) drop-shadow(0 0 22px rgba(255, 63, 164, .4));
+  }
   @keyframes float { 50% { transform: translateY(-10px); } }
   .frame {
     position: relative; border-radius: 26px; padding: 4px;
-    transform-style: preserve-3d; transition: transform .15s ease-out;
-    box-shadow: 0 25px 60px -15px rgba(90, 20, 90, .7), 0 0 40px rgba(255, 63, 164, .35);
+    transition: transform .15s ease-out;
+    /* Safari no iPhone ignora overflow + border-radius com transform 3D: o clip-path garante os cantos arredondados */
+    clip-path: inset(0 round 26px);
     overflow: hidden; isolation: isolate;
   }
   .frame::before {
@@ -164,7 +169,7 @@
     animation: spin 5s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .frame img { display: block; width: 100%; height: auto; aspect-ratio: 720 / 757; object-fit: cover; border-radius: 22px; }
+  .frame img { display: block; width: 100%; height: auto; aspect-ratio: 720 / 757; object-fit: cover; border-radius: 22px; clip-path: inset(0 round 22px); }
   .glare {
     position: absolute; inset: 4px; border-radius: 22px; pointer-events: none;
     background: radial-gradient(circle at var(--gx, 30%) var(--gy, 20%), rgba(255, 255, 255, .35), transparent 45%);

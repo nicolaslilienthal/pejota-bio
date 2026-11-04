@@ -169,7 +169,7 @@
   }
 
   // ---------- Texto digitado ----------
-  const phrases = ['Bem-vindo à cidade fortalece e cola 🌴', 'Conteúdo, gameplay e resenha', 'Segue lá 🔥'];
+  const phrases = ['Bem-vindo ao canal 🌴', 'Conteúdo, gameplay e resenha', 'Segue lá 🔥'];
   const typed = document.getElementById('typed');
   if (reduce) typed.textContent = phrases[0];
   else {
