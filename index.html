@@ -512,7 +512,7 @@
       const fly = () => {
         // velocidade constante: leitura confortável no celular, um pouco mais rápido em telas largas
         const W = innerWidth, w = f.offsetWidth + 30;
-        const speed = 48 + W * 0.014;
+        const speed = 55 + W * 0.016;
         const [from, to] = dir === 'left' ? [W + 30, -w] : [-w, W + 30];
         f.classList.add('on');
         f.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }],
